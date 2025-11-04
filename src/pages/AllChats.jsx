@@ -5,8 +5,7 @@ import { supabase } from "../supabase";
 export default function ChatPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const params = new URLSearchParams(location.search);
-  const categoryFromURL = params.get("category");
+  const categoryFromURL = new URLSearchParams(location.search).get("category");
 
   const [user, setUser] = useState(null);
   const [chats, setChats] = useState([]);
@@ -17,13 +16,10 @@ export default function ChatPage() {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
+    supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
       setLoading(false);
-    };
-
-    getUser();
+    });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_, session) => {
       setUser(session?.user ?? null);
@@ -37,26 +33,19 @@ export default function ChatPage() {
 
   useEffect(() => {
     const fetchChats = async () => {
-      const { data: allChats, error } = await supabase.from("chats").select("*");
-      if (error) return console.error(error);
-
+      const { data: allChats } = await supabase.from("chats").select("*");
       let all = allChats || [];
 
       if (categoryFromURL) {
         const chatId = `category-${categoryFromURL}`;
-        let chat = all.find((c) => c.id === chatId);
-
-        if (!chat) {
-          const { data, error } = await supabase
+        if (!all.find((c) => c.id === chatId)) {
+          const { data } = await supabase
             .from("chats")
             .insert([{ id: chatId, messages: [] }])
             .select()
             .single();
-
-          if (error) return console.error(error);
           all.push(data);
         }
-
         setSelectedChatId(chatId);
       }
 
@@ -71,27 +60,15 @@ export default function ChatPage() {
 
     const channel = supabase
       .channel("public:chats")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "chats",
-          filter: `id=eq.${selectedChatId}`,
-        },
-        (payload) => {
-          setMessages(payload.new.messages || []);
-        }
-      )
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chats", filter: `id=eq.${selectedChatId}` }, (payload) => setMessages(payload.new.messages || []))
       .subscribe();
 
-    const fetchMessages = async () => {
-      const { data, error } = await supabase.from("chats").select("messages").eq("id", selectedChatId).single();
-
-      if (!error) setMessages(data?.messages || []);
-    };
-
-    fetchMessages();
+    supabase
+      .from("chats")
+      .select("messages")
+      .eq("id", selectedChatId)
+      .single()
+      .then(({ data }) => setMessages(data?.messages || []));
 
     return () => supabase.removeChannel(channel);
   }, [selectedChatId]);
@@ -103,14 +80,8 @@ export default function ChatPage() {
   const handleSend = async () => {
     if (!text.trim() || !selectedChatId) return;
 
-    const newMsg = {
-      sender: currentUserId,
-      text: text.trim(),
-      createdAt: Date.now(),
-    };
-
+    const newMsg = { sender: currentUserId, text: text.trim(), createdAt: Date.now() };
     setText("");
-
     const updated = [...messages, newMsg];
 
     await supabase.from("chats").update({ messages: updated }).eq("id", selectedChatId);
@@ -128,7 +99,7 @@ export default function ChatPage() {
     <div className="bg-base-200 flex flex-col p-4 h-screen">
       <div className="card mx-auto bg-white max-w-xl w-full shadow-sm h-full flex flex-col">
         <div className="flex flex-col flex-1 overflow-hidden">
-          <div className="p-4 shadow flex gap-2 justify-between">
+          <div className="p-4 shadow flex gap-2 justify-between items-center">
             <div className="flex items-center gap-3 flex-1">
               {selectedChatId ? (
                 <>
@@ -147,13 +118,7 @@ export default function ChatPage() {
               onChange={(e) => {
                 const chatId = e.target.value;
                 setSelectedChatId(chatId);
-
-                if (chatId) {
-                  const category = chatId.replace("category-", "");
-                  navigate(`/chat?category=${encodeURIComponent(category)}`);
-                } else {
-                  navigate("/chat");
-                }
+                navigate(chatId ? `/chat?category=${encodeURIComponent(chatId.replace("category-", ""))}` : "/chat");
               }}
               className="select flex-1"
             >
@@ -170,10 +135,7 @@ export default function ChatPage() {
             {selectedChatId &&
               messages.map((msg, i) => {
                 const isMe = msg.sender === currentUserId;
-                const time = new Date(msg.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                });
+                const time = new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
                 return (
                   <div key={i} className="chat chat-start relative">
