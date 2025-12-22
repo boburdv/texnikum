@@ -72,7 +72,7 @@ export default function Header() {
       </div>
 
       {/* ================= NAVBAR ================= */}
-      <div className="navbar bg-base-100 py-4 pr-4 max-w-6xl mx-auto">
+      <div className="navbar bg-base-100 py-3 pr-4 max-w-6xl mx-auto">
         {/* MOBILE HAMBURGER */}
         <div className="flex-none md:hidden">
           <div className="dropdown">
@@ -95,9 +95,7 @@ export default function Header() {
               <li className="hover:bg-gray-200 rounded">
                 <Link to="/">Yarmarka</Link>
               </li>
-              <li className="hover:bg-gray-200 rounded">
-                <Link to="/admin">Admin</Link>
-              </li>
+
               <li className="hover:bg-gray-200 rounded">
                 <Link to="/about">Haqida</Link>
               </li>
@@ -107,7 +105,7 @@ export default function Header() {
 
         {/* LOGO (desktop) */}
         <div className="flex-1 justify-center md:justify-start">
-          <Link to="/" className="hidden md:block text-[25px] font-semibold text-gray-700">
+          <Link to="/" className="hidden md:block text-[25px] md:ml-2 font-semibold text-gray-700">
             POLITEXNIKUM
           </Link>
         </div>
@@ -123,15 +121,12 @@ export default function Header() {
           <Link to="/" className="hover:text-primary">
             Yarmarka
           </Link>
-          <Link to="/admin" className="hover:text-primary">
-            Admin
-          </Link>
         </nav>
 
         {/* AVATAR */}
-        <div className="flex-none">
+        <div className="flex-none ml-6">
           {!user ? (
-            <Link to="/auth" className="btn btn-primary btn-sm gap-1 ml-6">
+            <Link to="/auth" className="btn btn-primary btn-sm gap-1">
               Kirish <UserIcon className="w-4 h-4" />
             </Link>
           ) : (
