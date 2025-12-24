@@ -93,7 +93,12 @@ export default function ChatPage() {
   };
 
   if (loading) return <span className="loading loading-spinner loading-lg"></span>;
-  if (!user) return <p className="text-center mt-20">Avval login qiling.</p>;
+  if (!user)
+    return (
+      <p className="text-center mt-20">
+        Avval ro'yxatdan o'ting. <a href="/auth">Login</a>
+      </p>
+    );
 
   return (
     <div className="bg-base-200 flex flex-col p-4 h-screen">
