@@ -7,8 +7,6 @@ export default function CategoryPage() {
   const [category, setCategory] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => window.scrollTo({ top: 0 }), [categoryName]);
-
   useEffect(() => {
     setLoading(true);
     supabase
@@ -24,36 +22,37 @@ export default function CategoryPage() {
       .finally(() => setLoading(false));
   }, [categoryName]);
 
-  const skeleton = (
-    <div className="rounded-lg bg-base-100 md:flex overflow-hidden animate-pulse">
-      <div className="md:w-1/2 w-full relative" style={{ paddingTop: "66.66%" }}>
-        <div className="absolute inset-0 bg-gray-200"></div>
-      </div>
-      <div className="card-body md:w-1/2 gap-4">
-        <div className="h-8 w-3/4 bg-gray-200 rounded"></div>
-        <div className="h-4 w-full bg-gray-200 rounded"></div>
-        <div className="h-4 w-full bg-gray-200 rounded"></div>
-        <div className="h-4 w-2/3 bg-gray-200 rounded"></div>
+  const Skeleton = () => (
+    <div className="md:flex gap-6 w-full animate-pulse">
+      <div className="md:w-1/2 w-full aspect-3/2 lg:aspect-[4/3.2] rounded-md bg-gray-200" />
+
+      <div className="md:w-1/2 w-full mt-6 md:mt-0 space-y-4">
+        <div className="h-8 w-2/3 bg-gray-200 rounded" />
+        <div className="h-4 w-full bg-gray-200 rounded" />
+        <div className="h-4 w-full bg-gray-200 rounded" />
+        <div className="h-4 w-5/6 bg-gray-200 rounded" />
       </div>
     </div>
   );
 
   return (
-    <div className="max-w-6xl mx-auto mt-40 mb-24">
+    <div className="max-w-6xl mx-auto min-h-screen p-4 flex flex-col md:flex-row md:items-center md:justify-center">
       {loading ? (
-        skeleton
+        <Skeleton />
       ) : category ? (
-        <div className="rounded-lg bg-base-100 shadow-sm md:flex overflow-hidden">
-          <figure className="md:w-1/2 w-full relative" style={{ paddingTop: "66.66%" }}>
-            <img src={category.image_url || "/no-image.webp"} alt={category.name} className="absolute inset-0 w-full h-full object-cover" />
-          </figure>
-          <div className="card-body md:w-1/2">
-            <h2 className="card-title text-3xl font-bold">{category.name}</h2>
+        <div className="md:flex gap-6 w-full">
+          {/* Image */}
+          <div className="md:w-1/2 w-full aspect-[3/2] overflow-hidden">
+            <img src={category.image_url || "/no-image.webp"} alt={category.name} className="w-full h-full object-cover rounded-md" />
+          </div>
+
+          <div className="md:w-1/2 w-full mt-6 md:mt-0">
+            <h1 className="text-3xl font-bold mb-4">{category.name}</h1>
             <p className="text-gray-700 whitespace-pre-line">{category.description}</p>
           </div>
         </div>
       ) : (
-        <p className="text-center text-gray-500 mt-24">Ma’lumot topilmadi</p>
+        <p className="text-center text-gray-500">Ma’lumot topilmadi</p>
       )}
     </div>
   );

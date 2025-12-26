@@ -2,3 +2,12 @@
 @plugin "daisyui" {
   themes: light --default;
 }
+
+.scroll-hidden::-webkit-scrollbar {
+  display: none; /* Chrome, Safari va Edge */
+}
+
+.scroll-hidden {
+  -ms-overflow-style: none; /* IE va Edge */
+  scrollbar-width: none; /* Firefox */
+}

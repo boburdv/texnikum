@@ -11,25 +11,29 @@ import Auth from "./pages/Auth";
 import About from "./pages/About";
 
 function AppWrapper() {
-  const location = useLocation();
-  const hideLayout = ["/auth", "/chat", "/admin"].some((path) => location.pathname.startsWith(path));
+  const { pathname } = useLocation();
+
+  const showLayout = pathname === "/" || pathname === "/about";
 
   return (
     <div className="flex flex-col min-h-screen">
-      {!hideLayout && <Header />}
+      {showLayout && <Header />}
+
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+
           <Route path="/:categoryName" element={<CategoryPage />} />
           <Route path="/category/:categoryName" element={<AdCategory />} />
           <Route path="/ad/:adId" element={<AdDetail />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/about" element={<About />} />
         </Routes>
       </main>
-      {!hideLayout && <Footer />}
+
+      {showLayout && <Footer />}
     </div>
   );
 }

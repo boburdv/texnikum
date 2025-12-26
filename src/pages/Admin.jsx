@@ -36,7 +36,7 @@ export default function AdminPanel() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: cats } = await supabase.from("categories").select("*");
+      const { data: cats } = await supabase.from("dynamic").select("*");
       if (cats) setCategories(cats);
 
       const { data: adsData } = await supabase.from("ads").select("*").order("created_at", { ascending: false });
@@ -154,7 +154,7 @@ export default function AdminPanel() {
           <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
             <input type="text" placeholder="E’lon nomi" className="input w-full" value={title} onChange={(e) => setTitle(e.target.value)} />
             <textarea placeholder="Tafsifi" className="textarea w-full" value={description} onChange={(e) => setDescription(e.target.value)} />
-            <input type="number" placeholder="Narxi" className="input w-full" value={price} onChange={(e) => setPrice(e.target.value)} />
+            <input type="text" placeholder="Narxi" className="input w-full" value={price} onChange={(e) => setPrice(e.target.value)} />
             <input type="file" className="file-input w-full" onChange={(e) => setImage(e.target.files[0])} />
 
             <select

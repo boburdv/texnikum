@@ -6,6 +6,7 @@ import { FaComputer, FaQuestion } from "react-icons/fa6";
 import { TbNeedleThread, TbPlug, TbFlame } from "react-icons/tb";
 import { GiBee } from "react-icons/gi";
 import { MdRestaurant } from "react-icons/md";
+import { FaRegGem } from "react-icons/fa";
 
 const iconMap = {
   "fa-computer": FaComputer,
@@ -14,6 +15,7 @@ const iconMap = {
   "gi-bee": GiBee,
   "tb-flame": TbFlame,
   "md-restaurant": MdRestaurant,
+  FaGem: FaRegGem,
 };
 
 export default function Home() {
@@ -26,10 +28,14 @@ export default function Home() {
       .select("*")
       .then(({ data }) => data && setStaticCategories(data));
     supabase
-      .from("categories")
+      .from("dynamic")
       .select("*")
       .then(({ data }) => data && setDynamicCategories(data));
   }, []);
+
+  const staticSkeletons = Array.from({ length: 6 }).map((_, idx) => <div key={idx} className="bg-gray-300 animate-pulse aspect-[4/1.8] rounded-lg" />);
+
+  const dynamicSkeletons = Array.from({ length: 8 }).map((_, idx) => <div key={idx} className="bg-gray-300 animate-pulse aspect-[1.2/1] rounded-lg" />);
 
   return (
     <div>
@@ -49,21 +55,14 @@ export default function Home() {
 
       <div className="max-w-6xl mx-auto mt-24 mb-10 px-4">
         <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-8">Kasb yo'nalishlari</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:gap-8">
           {staticCategories.length === 0
-            ? Array.from({ length: 6 }).map((_, idx) => (
-                <div key={idx} className="flex flex-col gap-4 rounded-lg overflow-hidden animate-pulse">
-                  <div className="h-48 w-full bg-gray-300"></div>
-                  <div className="h-4 w-28 bg-gray-300 mx-4 mt-2 rounded"></div>
-                  <div className="h-4 w-full bg-gray-300 mx-4 rounded"></div>
-                  <div className="h-4 w-full bg-gray-300 mx-4 rounded"></div>
-                </div>
-              ))
+            ? staticSkeletons
             : staticCategories.map((cat) => {
                 const Icon = iconMap[cat.icon] || FaQuestion;
                 return (
                   <Link key={cat.id} to={`/${cat.name}`}>
-                    <div className="card border-base-300 border hover:shadow transition-shadow duration-300 overflow-hidden flex">
+                    <div className="card border-base-300 shadow border hover:shadow-lg transition-shadow duration-300 overflow-hidden flex">
                       <div className="flex items-center justify-center bg-gray-100 w-20 p-1 rounded-br-md">
                         <Icon className="text-4xl text-primary" />
                       </div>
@@ -80,28 +79,24 @@ export default function Home() {
 
       <div className="max-w-6xl mx-auto mt-20 mb-24 px-4">
         <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-8">Yarmarka</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-10">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-8">
           {dynamicCategories.length === 0
-            ? Array.from({ length: 4 }).map((_, idx) => (
-                <div key={idx} className="card shadow animate-pulse overflow-hidden">
-                  <div className="aspect-square bg-gray-300"></div>
-                  <div className="p-5.5">
-                    <div className="h-4 w-3/4 bg-gray-300 mx-auto rounded"></div>
-                  </div>
-                </div>
-              ))
-            : dynamicCategories.map((cat) => (
-                <Link key={cat.id} to={`/category/${encodeURIComponent(cat.name)}`}>
-                  <div className="card border border-base-300 hover:shadow transition overflow-hidden">
-                    <figure className="aspect-square bg-gray-100 flex items-center justify-center">
-                      <img src={cat.image_url || "/no-image.webp"} alt={cat.name} className="w-full h-full object-cover" />
-                    </figure>
-                    <div className="card-body text-center p-4">
-                      <h3 className="text-lg font-semibold">{cat.name}</h3>
+            ? dynamicSkeletons
+            : dynamicCategories.map((cat) => {
+                const Icon = iconMap[cat.icon] || FaQuestion;
+                return (
+                  <Link key={cat.id} to={`/category/${encodeURIComponent(cat.name)}`}>
+                    <div className="card border border-base-300 shadow hover:shadow-lg transition flex items-center p-4 gap-4">
+                      <div className="flex-shrink-0 w-16 h-16 flex items-center justify-center bg-gray-100 rounded-full">
+                        <Icon className="text-5xl text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="lg:text-xl font-semibold text-base line-clamp-1">{cat.name}</h3>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
         </div>
       </div>
     </div>
