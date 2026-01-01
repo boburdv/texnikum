@@ -49,7 +49,7 @@ export default function Header() {
           {/* Left */}
           <div className="flex gap-5">
             <div className="flex items-center gap-1">
-              <PhoneIcon className="w-4 h-4" /> (90) 123-4567
+              <PhoneIcon className="w-4 h-4" /> (90) 94 441 1407
             </div>
             <div className="hidden md:flex items-center gap-1">
               <EnvelopeIcon className="w-4 h-4" /> info@politex.uz
@@ -58,7 +58,7 @@ export default function Header() {
           {/* Right */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
-              <ClockIcon className="w-4 h-4" /> 8:00 - 18:00
+              <ClockIcon className="w-4 h-4" /> 09:00 - 18:00
             </div>
             <div className="hidden md:flex gap-1.5 ml-3">
               {socialLinks.map((s, i) => (
@@ -77,7 +77,7 @@ export default function Header() {
         <div className="flex-none md:hidden">
           <div className="dropdown">
             <div tabIndex={0} role="button" className="btn btn-square btn-ghost">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block h-6 w-6 stroke-current">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block h-5 w-5 stroke-current">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </div>
@@ -136,13 +136,13 @@ export default function Header() {
               </button>
               <ul className="dropdown-content menu bg-base-100 rounded-box w-52 shadow mt-3 p-2">
                 <li>
-                  <span>{user.user_metadata?.full_name}</span>
+                  <span>Ism: {user.user_metadata?.full_name}</span>
                 </li>
                 <li>
-                  <Link to="/chat">Izohlar</Link>
+                  <Link to="/admin">Admin panel</Link>
                 </li>
                 <li>
-                  <button onClick={handleLogout}>Chiqish</button>
+                  <button onClick={handleLogout}>Hisobdan chiqish</button>
                 </li>
               </ul>
             </div>
