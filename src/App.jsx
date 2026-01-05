@@ -9,6 +9,7 @@ import AdDetail from "./components/AdDetail";
 import ChatPage from "./pages/AllChats";
 import Auth from "./pages/Auth";
 import About from "./pages/About";
+import { Toaster } from "react-hot-toast";
 
 function AppWrapper() {
   const { pathname } = useLocation();
@@ -41,6 +42,7 @@ export default function App() {
   return (
     <Router>
       <AppWrapper />
+      <Toaster position="top-center" />
     </Router>
   );
 }

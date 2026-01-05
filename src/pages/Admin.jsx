@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import StudentsAdmin from "../components/StudentsAdmin";
+import { toast } from "react-hot-toast";
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -10,7 +11,6 @@ export default function AdminPanel() {
 
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
-
   const [ads, setAds] = useState([]);
   const [categories, setCategories] = useState([]);
   const [editingId, setEditingId] = useState(null);
@@ -20,7 +20,6 @@ export default function AdminPanel() {
   const [subCategory, setSubCategory] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("ads");
@@ -36,14 +35,14 @@ export default function AdminPanel() {
   }, [navigate]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetch = async () => {
       const { data: cats } = await supabase.from("dynamic").select("*");
       if (cats) setCategories(cats);
 
       const { data: adsData } = await supabase.from("ads").select("*").order("created_at", { ascending: false });
       if (adsData) setAds(adsData.filter((ad) => ad?.title));
     };
-    fetchData();
+    fetch();
   }, []);
 
   useEffect(() => {
@@ -57,43 +56,49 @@ export default function AdminPanel() {
     return () => window.removeEventListener("keydown", handleShortcut);
   }, []);
 
+  const showToast = (msg, type = "success") => {
+    if (type === "success") toast.success(msg);
+    else toast.error(msg);
+  };
+
   const handleSubmitAd = async (e) => {
     e.preventDefault();
-    setMessage("");
     setLoading(true);
-
     if (!title || !description || !category || !subCategory || !price) {
-      setMessage("Barcha maydonlarni to‘ldiring!");
+      showToast("Barcha maydonlarni to‘ldiring!", "error");
       setLoading(false);
       return;
     }
 
     let image_url = null;
     if (image) {
-      const fileExt = image.name.split(".").pop();
-      const filePath = `ads/${Date.now()}.${fileExt}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage.from("ads").upload(filePath, image, { upsert: true });
-      if (uploadError) return setMessage("Rasm yuklanmadi!"), setLoading(false);
-      const { data: urlData } = supabase.storage.from("ads").getPublicUrl(filePath);
-      image_url = urlData.publicUrl;
+      const ext = image.name.split(".").pop();
+      const path = `ads/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("ads").upload(path, image, { upsert: true });
+      if (uploadError) {
+        showToast("Rasm yuklanmadi!", "error");
+        setLoading(false);
+        return;
+      }
+      image_url = supabase.storage.from("ads").getPublicUrl(path).data.publicUrl;
     }
 
     if (editingId) {
-      const { data: updated, error } = await supabase
+      const { data: updated } = await supabase
         .from("ads")
         .update({ title, description, price, category, sub_category: subCategory, ...(image_url && { image_url }) })
         .eq("id", editingId)
         .select();
-      if (!error && updated?.[0]) setAds((prev) => prev.map((ad) => (ad.id === editingId ? updated[0] : ad)));
+      if (updated?.[0]) setAds((prev) => prev.map((ad) => (ad.id === editingId ? updated[0] : ad)));
       setEditingId(null);
-      setMessage("E’lon yangilandi!");
+      showToast("E’lon muvaffaqiyatli yangilandi!", "success");
     } else {
-      const { data: newAds, error } = await supabase
+      const { data: newAds } = await supabase
         .from("ads")
         .insert([{ title, description, price, category, sub_category: subCategory, image_url, created_at: new Date() }])
         .select();
-      if (!error && newAds?.[0]) setAds((prev) => [newAds[0], ...prev]);
-      setMessage("E’lon qo‘shildi!");
+      if (newAds?.[0]) setAds((prev) => [newAds[0], ...prev]);
+      showToast("E’lon muvaffaqiyatli qo‘shildi!", "success");
     }
 
     setLoading(false);
@@ -108,6 +113,7 @@ export default function AdminPanel() {
   const handleDeleteAd = async (id) => {
     await supabase.from("ads").delete().eq("id", id);
     setAds((prev) => prev.filter((ad) => ad.id !== id));
+    showToast("E’lon muvaffaqiyatli o‘chirildi", "error");
   };
 
   const handleEditAd = (ad) => {
@@ -122,7 +128,13 @@ export default function AdminPanel() {
 
   const filteredAds = ads.filter((ad) => ad?.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  if (loadingUser) return <div>Loading...</div>;
+  if (loadingUser)
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <span className="loading loading-ring loading-xl"></span>
+      </div>
+    );
+
   if (!user) return null;
 
   return (
@@ -141,7 +153,6 @@ export default function AdminPanel() {
           <div className="flex flex-col sm:flex-row gap-6">
             <div className="flex-1 max-w-xl bg-base-100 shadow card p-6 flex flex-col">
               <h2 className="card-title mb-4 text-center">{editingId ? "E'lonni tahrirlash" : "E'lon qo'shish"}</h2>
-              {message && <p className="text-green-600 text-center mb-3">{message}</p>}
               <form className="flex flex-col gap-4" onSubmit={handleSubmitAd}>
                 <input type="text" placeholder="E’lon nomi" className="input w-full" value={title} onChange={(e) => setTitle(e.target.value)} />
                 <textarea placeholder="Tafsifi" className="textarea w-full" value={description} onChange={(e) => setDescription(e.target.value)} />
@@ -224,7 +235,7 @@ export default function AdminPanel() {
           </div>
         )}
 
-        {activeTab === "students" && <StudentsAdmin />}
+        {activeTab === "students" && <StudentsAdmin showToast={showToast} />}
       </div>
     </div>
   );

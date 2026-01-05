@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -16,7 +16,7 @@ export default function ChatPage() {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef(null);
-  const [editingIndex, setEditingIndex] = useState(null); // Qaysi xabar tahrirlanmoqda
+  const [editingIndex, setEditingIndex] = useState(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -34,29 +34,28 @@ export default function ChatPage() {
 
   const currentUserId = user?.email;
 
-  useEffect(() => {
-    const fetchChats = async () => {
-      const { data: allChats } = await supabase.from("chats").select("*");
-      let all = allChats || [];
+  const fetchChats = useCallback(async () => {
+    const { data: allChats } = await supabase.from("chats").select("*");
+    let all = allChats || [];
 
-      if (categoryFromURL) {
-        const chatId = `category-${categoryFromURL}`;
-        if (!all.find((c) => c.id === chatId)) {
-          const { data } = await supabase
-            .from("chats")
-            .insert([{ id: chatId, messages: [] }])
-            .select()
-            .single();
-          all.push(data);
-        }
-        setSelectedChatId(chatId);
+    if (categoryFromURL) {
+      const chatId = `category-${categoryFromURL}`;
+      if (!all.find((c) => c.id === chatId)) {
+        const { data } = await supabase
+          .from("chats")
+          .insert([{ id: chatId, messages: [] }])
+          .select()
+          .single();
+        all.push(data);
       }
-
-      setChats(all);
-    };
-
-    fetchChats();
+      setSelectedChatId(chatId);
+    }
+    setChats(all);
   }, [categoryFromURL]);
+
+  useEffect(() => {
+    fetchChats();
+  }, [fetchChats]);
 
   useEffect(() => {
     if (!selectedChatId) return;
@@ -80,35 +79,43 @@ export default function ChatPage() {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const updateChatMessages = useCallback(
+    async (updated) => {
+      await supabase.from("chats").update({ messages: updated }).eq("id", selectedChatId);
+      setMessages(updated);
+    },
+    [selectedChatId]
+  );
+
   const handleSend = async () => {
     if (!text.trim() || !selectedChatId) return;
 
+    const trimmed = text.trim();
+    let updated;
+
     if (editingIndex !== null) {
-      // Tahrirlash rejimi: eski xabarni yangilash
-      const updated = [...messages];
-      updated[editingIndex] = {
-        ...updated[editingIndex],
-        text: text.trim(),
-        editedAt: Date.now(), // optional, qachon tahrir qilinganini saqlash
-      };
-      await supabase.from("chats").update({ messages: updated }).eq("id", selectedChatId);
-      setEditingIndex(null); // tahrirlash rejimidan chiqish
+      updated = [...messages];
+      updated[editingIndex] = { ...updated[editingIndex], text: trimmed, editedAt: Date.now() };
+      setEditingIndex(null);
     } else {
-      // Yangi xabar qo'shish
-      const newMsg = { sender: currentUserId, text: text.trim(), createdAt: Date.now() };
-      const updated = [...messages, newMsg];
-      await supabase.from("chats").update({ messages: updated }).eq("id", selectedChatId);
+      updated = [...messages, { sender: currentUserId, text: trimmed, createdAt: Date.now() }];
     }
 
     setText("");
+    await updateChatMessages(updated);
   };
 
   const deleteMessage = async (index) => {
     const updated = messages.filter((_, i) => i !== index);
-    await supabase.from("chats").update({ messages: updated }).eq("id", selectedChatId);
+    await updateChatMessages(updated);
   };
 
-  if (loading) return <span className="loading loading-spinner loading-lg"></span>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <span className="loading loading-ring loading-xl"></span>
+      </div>
+    );
   if (!user)
     return (
       <p className="text-center mt-20">
@@ -144,7 +151,7 @@ export default function ChatPage() {
                 setSelectedChatId(chatId);
                 navigate(chatId ? `/chat?category=${encodeURIComponent(chatId.replace("category-", ""))}` : "/chat");
               }}
-              className="select flex-1 "
+              className="select flex-1"
             >
               <option disabled>Kategoriya</option>
               {chats.map((chat) => (
@@ -163,7 +170,6 @@ export default function ChatPage() {
 
                 return (
                   <div key={i} className="chat chat-start relative">
-                    {/* Dropdown faqat xabar egasi uchun */}
                     {isMe && (
                       <div className="absolute right-0 top-4">
                         <div className="dropdown dropdown-left">
@@ -178,14 +184,12 @@ export default function ChatPage() {
                                   setEditingIndex(i);
                                 }}
                               >
-                                <PencilIcon className="w-4 h-4" />
-                                Tahrirlash
+                                <PencilIcon className="w-4 h-4" /> Tahrirlash
                               </button>
                             </li>
                             <li>
                               <button className="text-red-600" onClick={() => deleteMessage(i)}>
-                                <TrashIcon className="w-4 h-4" />
-                                O'chirish
+                                <TrashIcon className="w-4 h-4" /> O'chirish
                               </button>
                             </li>
                           </ul>
@@ -193,25 +197,21 @@ export default function ChatPage() {
                       </div>
                     )}
 
-                    {/* Avatar */}
                     <div className="chat-image avatar" title={msg.sender}>
                       <div className="w-10 rounded-full">
                         <img alt="avatar" src={`https://ui-avatars.com/api/?name=${msg.sender}&background=random`} />
                       </div>
                     </div>
 
-                    {/* Vaqt */}
                     <div className="chat-header flex items-center gap-2">
                       <time className="text-xs opacity-50">{time}</time>
                       {msg.editedAt && <span className="text-xs opacity-50 ml-1">(tahrirlandi)</span>}
                     </div>
 
-                    {/* Xabar */}
                     <div className={`chat-bubble ${isMe ? "chat-bubble-primary" : ""}`}>{msg.text}</div>
                   </div>
                 );
               })}
-
             <div ref={scrollRef}></div>
           </div>
         </div>
@@ -230,7 +230,6 @@ export default function ChatPage() {
                 }
               }}
             />
-
             <button onClick={handleSend} className="btn-primary btn">
               {editingIndex !== null ? "Yangilash" : "Yuborish"}
             </button>
