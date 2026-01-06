@@ -1,57 +1,90 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useParams } from "react-router-dom";
 import { supabase } from "../supabase";
 
-export default function AdDetail() {
-  const { adId } = useParams();
-  const navigate = useNavigate();
-  const [ad, setAd] = useState(null);
+export default function CategoryPage() {
+  const { categoryName } = useParams();
+  const [category, setCategory] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showFullDescription, setShowFullDescription] = useState(false);
+  const descRef = useRef(null);
+  const [descHeight, setDescHeight] = useState("auto");
 
   useEffect(() => {
     setLoading(true);
     supabase
-      .from("ads")
+      .from("static")
       .select("*")
-      .eq("id", adId)
+      .ilike("name", categoryName)
       .single()
       .then(({ data, error }) => {
         if (error) throw error;
-        setAd(data);
+        setCategory(data);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [adId]);
+  }, [categoryName]);
 
-  if (loading) return <p className="text-center mt-20">Loading...</p>;
-  if (!ad) return <p className="text-center mt-20">E'lon topilmadi.</p>;
+  useEffect(() => {
+    if (descRef.current) {
+      if (showFullDescription) {
+        setDescHeight(descRef.current.scrollHeight + "px");
+      } else {
+        const lineHeight = parseInt(window.getComputedStyle(descRef.current).lineHeight);
+        const maxLines = 5;
+        setDescHeight(lineHeight * maxLines + "px");
+      }
+    }
+  }, [showFullDescription, category]);
+
+  const Skeleton = () => (
+    <div className="md:flex gap-8 w-full animate-pulse">
+      <div className="md:w-1/2 w-full aspect-3/2 lg:aspect-[4/2.7] rounded-md bg-gray-200" />
+      <div className="md:w-1/2 w-full mt-6 md:mt-0 space-y-4">
+        <div className="h-8 w-2/3 bg-gray-200 rounded" />
+        <div className="h-4 w-full bg-gray-200 rounded" />
+        <div className="h-4 w-full bg-gray-200 rounded" />
+        <div className="h-4 w-full bg-gray-200 rounded" />
+        <div className="h-4 w-5/6 bg-gray-200 rounded" />
+      </div>
+    </div>
+  );
 
   return (
-    <div className="max-w-6xl mx-auto p-4 lg:mt-4 flex flex-col md:flex-row gap-8">
-      {ad.image_url && <img src={ad.image_url} alt={ad.title} className="w-full md:w-1/2 h-[300px] md:h-[400px] lg:h-[450px] object-cover rounded-md shadow" />}
+    <div className="max-w-6xl mx-auto p-4 lg:mt-4 flex flex-col md:flex-row md:items-center md:justify-center">
+      {loading ? (
+        <Skeleton />
+      ) : category ? (
+        <div className="md:flex gap-8 w-full">
+          <div className="md:w-1/2 w-full aspect-[3/2] overflow-hidden">
+            <img src={category.image_url || "/no-image.webp"} alt={category.name} className="w-full h-full object-cover rounded-md" />
+          </div>
 
-      <div className="md:w-1/2 w-full flex flex-col justify-start">
-        <h2 className="text-3xl font-bold mb-4">{ad.title}</h2>
-        <p className="text-gray-700 mb-4">{ad.description}</p>
+          <div className="md:w-1/2 w-full mt-4 md:mt-0">
+            <h1 className="text-3xl font-bold mb-4">{category.name}</h1>
 
-        {ad.price && <p className="text-green-600 font-semibold mb-2">{ad.price} so‘m</p>}
+            <div
+              ref={descRef}
+              style={{
+                height: descHeight,
+                overflow: "hidden",
+                transition: "height 0.8s ease",
+              }}
+              className="text-gray-700 whitespace-pre-line"
+            >
+              {category.description}
+            </div>
 
-        <p className="mb-1">
-          <strong>Kategoriya:</strong> {ad.category}
-        </p>
-        <p className="mb-1">
-          <strong>Subkategoriya:</strong> {ad.sub_category}
-        </p>
-        {ad.created_at && (
-          <p className="text-gray-500 text-sm mt-2">
-            <strong>Yaratilgan sana:</strong> {new Date(ad.created_at).toLocaleString()}
-          </p>
-        )}
-
-        <button onClick={() => navigate(`/chat?category=${encodeURIComponent(ad.category)}`)} className="btn btn-primary mt-6 w-full md:w-1/2">
-          Izoh qoldirish
-        </button>
-      </div>
+            {category.description.split("\n").join(" ").length > 100 && (
+              <button className="mt-2 text-blue-600 text-sm cursor-pointer hover:underline" onClick={() => setShowFullDescription(!showFullDescription)}>
+                {showFullDescription ? "Kamroq o'qish" : "Ko'proq o'qish"}
+              </button>
+            )}
+          </div>
+        </div>
+      ) : (
+        <p className="text-center text-gray-500">Ma'lumot topilmadi</p>
+      )}
     </div>
   );
 }
