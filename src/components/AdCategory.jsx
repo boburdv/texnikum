@@ -14,7 +14,6 @@ export default function CategoryAds() {
   const [selectedSub, setSelectedSub] = useState("");
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [favorites, setFavorites] = useState([]);
   const [allFavorites, setAllFavorites] = useState([]);
 
@@ -26,32 +25,25 @@ export default function CategoryAds() {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-
       const { data: catData } = await supabase.from("dynamic").select("*").ilike("name", decodedCategory);
-
       if (!catData?.length) {
         setLoading(false);
         return;
       }
-
       const current = catData[0];
       setCategory(current);
       setSubCategories(current.sub || []);
-
       const { data: adsData } = await supabase.from("ads").select("*").eq("category", decodedCategory);
-
       setAds(adsData || []);
       setLoading(false);
     };
-
     loadData();
   }, [decodedCategory]);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
     setFavorites(stored);
-
-    if (stored.length > 0) {
+    if (stored.length) {
       supabase
         .from("ads")
         .select("*")
@@ -68,9 +60,7 @@ export default function CategoryAds() {
     } else {
       const updated = [...favorites, adId];
       saveFavorites(updated);
-
       const { data } = await supabase.from("ads").select("*").eq("id", adId).single();
-
       if (data) setAllFavorites((prev) => [...prev, data]);
     }
   };
@@ -85,17 +75,17 @@ export default function CategoryAds() {
 
   const SkeletonCard = () => (
     <div className="shadow rounded-lg overflow-hidden animate-pulse">
-      <div className="relative aspect-[3/3.5] bg-gray-200">
-        <div className="absolute top-2 right-2 w-8 h-8 bg-gray-300 rounded-full" />
-      </div>
-      <div className="px-4 py-2 space-y-2">
-        <div className="h-4 bg-gray-200 rounded w-4/5" />
-        <div className="h-3 bg-gray-200 rounded w-2/5" />
+      <figure className="relative aspect-[3/3.5] bg-gray-200">
+        <div className="absolute top-2 right-2 w-8 h-8 rounded-full bg-gray-300" />
+      </figure>
+      <div className="px-3 lg:px-4 py-4">
+        <div className="h-4 bg-gray-200 rounded w-4/5 mb-1" />
+        <div className="h-4 bg-gray-200 rounded w-2/5 py-0.5" />
       </div>
     </div>
   );
 
-  const skeletonCards = Array.from({ length: 10 }, (_, i) => <SkeletonCard key={i} />);
+  const skeletonCards = Array.from({ length: 5 }, (_, i) => <SkeletonCard key={i} className="max-w-6xl mx-auto px-4 mb-4" />);
 
   return (
     <>
@@ -105,7 +95,7 @@ export default function CategoryAds() {
             <div className="w-full animate-pulse">
               <div className="h-7 w-64 bg-gray-200 rounded mb-2" />
               <div className="flex gap-2">
-                {Array.from({ length: 6 }).map((_, i) => (
+                {Array.from({ length: 5 }).map((_, i) => (
                   <div key={i} className="h-9.5 w-24 bg-gray-200 rounded-sm" />
                 ))}
               </div>
@@ -169,7 +159,7 @@ export default function CategoryAds() {
         )}
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 mb-24">
+      <div className="max-w-6xl mx-auto px-4">
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">{skeletonCards}</div>
         ) : filteredAds.length === 0 ? (
@@ -185,7 +175,7 @@ export default function CategoryAds() {
                         e.preventDefault();
                         toggleFavorite(ad.id);
                       }}
-                      className="btn btn-circle btn-sm absolute top-2 right-2 bg-white/70"
+                      className="btn btn-circle btn-sm absolute top-2 right-2 bg-white/70 backdrop-blur"
                     >
                       <svg fill={favorites.includes(ad.id) ? "currentColor" : "none"} viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="size-[1.2em]">
                         <path
@@ -195,11 +185,12 @@ export default function CategoryAds() {
                         />
                       </svg>
                     </button>
+                    {ad.sub_category && <span className="badge badge-ghost badge-sm absolute top-2 left-2 bg-white/70 backdrop-blur">{ad.sub_category}</span>}
                     <img src={ad.image_url} className="w-full h-full object-cover" />
                   </figure>
-                  <div className="px-4 py-2">
+                  <div className="px-3 lg:px-4 py-2">
                     <h2 className="font-medium line-clamp-1">{ad.title}</h2>
-                    {ad.price && <p className="font-semibold text-primary">{ad.price}</p>}
+                    {ad.price && <p className="font-semibold text-primary line-clamp-1 py-0.5">{ad.price} so'm</p>}
                   </div>
                 </div>
               </Link>
