@@ -56,7 +56,7 @@ export default function StudentsAdmin() {
     const { error } = await supabase.from("static").update({ students: updatedStudents }).eq("id", selectedCategoryId);
     if (!error) {
       setCategories((prev) => prev.map((cat) => (cat.id === selectedCategoryId ? { ...cat, students: updatedStudents } : cat)));
-      toast.success(editingIndex !== null ? "O‘quvchi muvaffaqiyatli yangilandi!" : "O‘quvchi muvaffaqiyatli qo‘shildi!");
+      toast.success(editingIndex !== null ? "Ro'yxat muvaffaqiyatli yangilandi!" : "Ro'yxat muvaffaqiyatli qo‘shildi!");
       setStudentFirstName("");
       setStudentLastName("");
       setStudentGroup("");
@@ -74,7 +74,7 @@ export default function StudentsAdmin() {
     updatedStudents.splice(index, 1);
     const { error } = await supabase.from("static").update({ students: updatedStudents }).eq("id", categoryId);
     if (!error) setCategories((prev) => prev.map((c) => (c.id === categoryId ? { ...c, students: updatedStudents } : c)));
-    toast.success("O‘quvchi muvaffaqiyatli o‘chirildi!");
+    toast.success("Ro'yxat muvaffaqiyatli o‘chirildi!");
   };
 
   const handleEditStudent = (categoryId, index) => {
@@ -90,7 +90,7 @@ export default function StudentsAdmin() {
   return (
     <div className="flex flex-col sm:flex-row gap-6">
       <div className="flex-1 max-w-xl bg-base-100 shadow card p-6 flex flex-col">
-        <h2 className="card-title mb-4 text-center">{editingIndex !== null ? "O‘quvchini tahrirlash" : "O‘quvchi qo‘shish"}</h2>
+        <h2 className="card-title mb-4 text-center">{editingIndex !== null ? "Ro'yxatni tahrirlash" : "Ro'yxat qo‘shish"}</h2>
         <form className="flex flex-col gap-4" onSubmit={handleSubmitStudent}>
           <select className="select w-full" value={selectedCategoryId} onChange={(e) => setSelectedCategoryId(e.target.value)}>
             <option value="">Kategoriya tanlang</option>
