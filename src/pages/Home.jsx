@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../supabase";
-import React from "react";
 import { FaComputer, FaQuestion, FaRegGem } from "react-icons/fa6";
 import { TbNeedleThread, TbPlug, TbFlame } from "react-icons/tb";
 import { GiBee } from "react-icons/gi";
@@ -54,13 +53,11 @@ export default function Home() {
       if (dynamicData.data) setDynamicCategories(dynamicData.data);
       setLoading(false);
     };
-
     fetchData();
   }, []);
 
   return (
     <div>
-      {/* Hero section */}
       <div className="relative w-full h-[450px] md:h-[500px] lg:h-[550px] mt-[100px]">
         <img src="/home-img.jpg" alt="hero" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/50" />
@@ -69,13 +66,13 @@ export default function Home() {
             <span className="inline-block bg-primary px-4 py-1.5 rounded-full text-sm font-semibold mx-auto md:mx-0">RISHTON TUMAN</span>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold leading-snug mx-auto md:mx-0 uppercase">1-son Teхnikumi</h1>
             <p className="text-base md:text-lg font-medium text-white/90 max-w-lg mx-auto md:mx-0">
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facilis, nam quam praesentium est quae perferendis laudantium quia iure? Architecto.
+              Zamonaviy kasblar bo‘yicha malakali mutaxassislar tayyorlanadi, o‘quvchilar esa amaliy mashg‘ulotlar orqali bilimlarini mustahkamlash bilan birga, yarmarkalarda mahsulotlarini namoyish
+              etib sotish imkoniga ega.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Static categories */}
       <div className="max-w-6xl mx-auto mt-24 mb-10 px-4">
         <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-8">Kasb yo'nalishlari</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:gap-5">
@@ -98,7 +95,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Dynamic categories / Yarmarka */}
       <div className="max-w-6xl mx-auto mt-20 mb-24 px-4" id="yarmarka">
         <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-8">Yarmarka</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
