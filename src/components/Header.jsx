@@ -60,7 +60,7 @@ export default function Header() {
 
       <div className={`fixed top-0 left-0 right-0 z-50 bg-base-100 shadow-xs transition-transform duration-300 ${showHeader ? "translate-y-0" : "-translate-y-full"}`}>
         <div className="bg-base-200 border-b border-base-300">
-          <div className="max-w-6xl mx-auto flex justify-between items-center py-1.5 px-4 text-sm text-base-content">
+          <div className="container mx-auto flex justify-between items-center py-1.5 px-4 text-sm text-base-content">
             <div className="flex gap-5">
               <div className="flex items-center gap-1">
                 <PhoneIcon className="w-4 h-4" /> (94) 441 14 07
@@ -75,7 +75,7 @@ export default function Header() {
               </div>
               <div className="hidden md:flex gap-1.5 ml-3">
                 {socialLinks.map((s, i) => (
-                  <a key={i} href={s.href} className="p-1 border border-base-300 rounded-lg bg-base-100 hover:bg-primary hover:text-primary-content">
+                  <a key={i} href={s.href} className="p-1 border border-base-300 transition-all duration-300 rounded-lg bg-base-100 hover:bg-primary hover:text-primary-content">
                     {s.icon}
                   </a>
                 ))}
@@ -84,9 +84,11 @@ export default function Header() {
           </div>
         </div>
 
-        <div className="navbar bg-base-100 px-4 max-w-6xl mx-auto">
-          <div className="flex-1 justify-start">
-            <button className="md:hidden">{mobileMenuOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6 mt-1.5" />}</button>
+        <div className="navbar bg-base-100 px-4 container mx-auto">
+          <div className="flex-1 justify-start flex items-center gap-2">
+            <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6 mt-1.5" />}
+            </button>
 
             <Link to="/" className="hidden md:block text-[25px] font-semibold text-base-content">
               TEXNIKUM
@@ -140,30 +142,62 @@ export default function Header() {
           </div>
         </div>
 
-        {mobileMenuOpen && (
-          <div className="md:hidden fixed top-0 left-0 w-full h-screen bg-base-100 shadow-md z-40 flex flex-col">
-            <div className="flex items-center justify-between px-4 py-4 border-b border-base-300">
-              <Link to="/" className="text-[25px] font-semibold text-base-content">
-                TEXNIKUM
-              </Link>
-              <button>
-                <XMarkIcon className="w-6 h-6" />
-              </button>
-            </div>
-
-            <nav className="flex flex-col p-4 gap-3 text-sm font-medium text-base-content">
-              <Link to="/" className="hover:text-primary">
-                Bosh sahifa
-              </Link>
-              <Link to="/about" className="hover:text-primary">
-                Haqida
-              </Link>
-              <Link to="/" onClick={() => document.getElementById("yarmarka")?.scrollIntoView({ behavior: "smooth" })} className="hover:text-primary">
-                Yarmarka
-              </Link>
-            </nav>
+        <div
+          className={`md:hidden fixed top-0 left-0 w-full h-screen bg-base-100 shadow-md z-40 flex flex-col transform transition-all duration-300 ${
+            mobileMenuOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-10 pointer-events-none"
+          }`}
+        >
+          <div className="flex items-center justify-between px-4 py-4 border-b border-base-300">
+            <Link to="/" className="text-[25px] font-semibold text-base-content">
+              TEXNIKUM
+            </Link>
+            <button onClick={() => setMobileMenuOpen(false)}>
+              <XMarkIcon className="w-6 h-6" />
+            </button>
           </div>
-        )}
+
+          <div className="flex border-b border-base-300 items-center justify-between mx-6 py-6 text-sm">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <PhoneIcon className="w-4 h-4" /> (94) 441 14 07
+              </div>
+              <div className="flex items-center gap-2">
+                <EnvelopeIcon className="w-4 h-4" /> info@politex.uz
+              </div>
+            </div>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <ClockIcon className="w-4 h-4" /> 09:00 - 18:00
+              </div>
+              <div className="flex gap-3">
+                {socialLinks.map((s, i) => (
+                  <a key={i} href={s.href} className="p-1 border border-base-300 rounded-lg bg-base-100 hover:bg-primary hover:text-primary-content">
+                    {s.icon}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <nav className="text-lg font-medium flex justify-between mx-6 mt-5">
+            <Link to="/" className="hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
+              Bosh sahifa
+            </Link>
+            <Link to="/about" className="hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
+              Haqida
+            </Link>
+            <Link
+              to="/"
+              onClick={() => {
+                document.getElementById("yarmarka")?.scrollIntoView({ behavior: "smooth" });
+                setMobileMenuOpen(false);
+              }}
+              className="hover:text-primary"
+            >
+              Yarmarka
+            </Link>
+          </nav>
+        </div>
       </div>
     </div>
   );
