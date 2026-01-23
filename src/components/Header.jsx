@@ -143,11 +143,12 @@ export default function Header() {
         </div>
 
         <div
-          className={`md:hidden fixed top-0 left-0 w-full h-screen bg-base-100 shadow-md z-40 flex flex-col transform transition-all duration-300 ${
+          className={`md:hidden fixed top-0 left-0 w-full h-screen bg-base-100/90 backdrop-blur-sm z-40 flex flex-col transform transition-all duration-300 ${
             mobileMenuOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-10 pointer-events-none"
           }`}
         >
-          <div className="flex items-center justify-between px-4 py-4 border-b border-base-300">
+          {/* Header logo + close button */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-base-300">
             <Link to="/" className="text-[25px] font-semibold text-base-content">
               TEXNIKUM
             </Link>
@@ -156,34 +157,34 @@ export default function Header() {
             </button>
           </div>
 
-          <div className="flex border-b border-base-300 items-center justify-between mx-6 py-6 text-sm">
-            <div className="flex flex-col gap-3">
+          {/* Contact info + socials */}
+          <div className="flex flex-col gap-4 px-6 py-6 border-b border-base-300">
+            <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <PhoneIcon className="w-4 h-4" /> (94) 441 14 07
               </div>
               <div className="flex items-center gap-2">
                 <EnvelopeIcon className="w-4 h-4" /> info@politex.uz
               </div>
-            </div>
-            <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <ClockIcon className="w-4 h-4" /> 09:00 - 18:00
               </div>
-              <div className="flex gap-3">
-                {socialLinks.map((s, i) => (
-                  <a key={i} href={s.href} className="p-1 border border-base-300 rounded-lg bg-base-100 hover:bg-primary hover:text-primary-content">
-                    {s.icon}
-                  </a>
-                ))}
-              </div>
+            </div>
+            <div className="flex gap-3 mt-2">
+              {socialLinks.map((s, i) => (
+                <a key={i} href={s.href} className="p-2 border border-base-300 rounded-lg bg-base-100 hover:bg-primary hover:text-primary-content transition-all duration-300">
+                  {s.icon}
+                </a>
+              ))}
             </div>
           </div>
 
-          <nav className="text-lg font-medium flex justify-between mx-6 mt-5">
-            <Link to="/" className="hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
+          {/* Nav links */}
+          <nav className="flex flex-col gap-6 mt-6 px-6 text-lg font-medium">
+            <Link to="/" onClick={() => setMobileMenuOpen(false)} className="hover:text-primary">
               Bosh sahifa
             </Link>
-            <Link to="/about" className="hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
+            <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="hover:text-primary">
               Haqida
             </Link>
             <Link
@@ -197,6 +198,41 @@ export default function Header() {
               Yarmarka
             </Link>
           </nav>
+
+          {/* User / auth buttons */}
+          <div className="mt-auto px-6 py-6 flex flex-col gap-4">
+            {!user ? (
+              <Link to="/auth" className="btn btn-primary gap-2">
+                Kirish <UserIcon className="w-5 h-5" />
+              </Link>
+            ) : (
+              <div className="dropdown dropdown-end">
+                <button tabIndex={0} className="rounded-full overflow-hidden">
+                  <div className="bg-primary text-primary-content w-10 h-10 flex items-center justify-center">{user.user_metadata?.full_name?.[0]?.toUpperCase() ?? "U"}</div>
+                </button>
+                <ul className="dropdown-content menu bg-base-100 rounded-box w-52 shadow mt-3 p-2">
+                  <li className="disabled">
+                    <Link className="flex items-center gap-2">
+                      <FaUser />
+                      <span>{user.user_metadata?.full_name}</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/admin" className="flex items-center gap-2">
+                      <FaUserShield />
+                      <span>Admin panel</span>
+                    </Link>
+                  </li>
+                  <li className="text-error">
+                    <button onClick={handleLogout} className="flex items-center gap-2 w-full">
+                      <FaSignOutAlt />
+                      <span>Hisobdan chiqish</span>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
