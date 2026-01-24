@@ -147,7 +147,7 @@ export default function Header() {
             mobileMenuOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-10 pointer-events-none"
           }`}
         >
-          {/* Header logo + close button */}
+          
           <div className="flex items-center justify-between px-6 py-4 border-b border-base-300">
             <Link to="/" className="text-[25px] font-semibold text-base-content">
               TEXNIKUM
@@ -157,7 +157,6 @@ export default function Header() {
             </button>
           </div>
 
-          {/* Contact info + socials */}
           <div className="flex flex-col gap-4 px-6 py-6 border-b border-base-300">
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
@@ -199,7 +198,6 @@ export default function Header() {
             </Link>
           </nav>
 
-          {/* User / auth buttons */}
           <div className="mt-auto px-6 py-6 flex flex-col gap-4">
             {!user ? (
               <Link to="/auth" className="btn btn-primary gap-2">

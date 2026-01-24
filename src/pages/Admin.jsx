@@ -22,9 +22,6 @@ export default function AdminPanel() {
   const [subCategory, setSubCategory] = useState("");
   const [price, setPrice] = useState("");
 
-  // 🔥 DEFAULT TELEGRAM QIYMAT
-  const [telegram, setTelegram] = useState("+998944411407");
-
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,6 +29,7 @@ export default function AdminPanel() {
   const [adToDelete, setAdToDelete] = useState(null);
 
   const ADMIN_EMAIL = "admin@admin.uz";
+  const DEFAULT_TELEGRAM = "+998944411407"; // 🔥 Har doim ishlatiladigan Telegram raqam
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -47,7 +45,6 @@ export default function AdminPanel() {
       if (cats) setCategories(cats);
 
       const { data: adsData } = await supabase.from("ads").select("*").order("created_at", { ascending: false });
-
       if (adsData) setAds(adsData.filter((ad) => ad?.title));
     };
     fetch();
@@ -86,7 +83,6 @@ export default function AdminPanel() {
       const fileName = `${Date.now()}.${ext}`;
 
       const { error } = await supabase.storage.from("ads").upload(fileName, image, { upsert: true });
-
       if (error) {
         showToast("Rasm yuklanmadi!", "error");
         setLoading(false);
@@ -96,10 +92,7 @@ export default function AdminPanel() {
       image_url = supabase.storage.from("ads").getPublicUrl(fileName).data.publicUrl;
     }
 
-    let telegramValue = telegram.trim();
-    if (telegramValue && !telegramValue.startsWith("https://t.me/")) {
-      telegramValue = `https://t.me/${telegramValue}`;
-    }
+    const telegramValue = `https://t.me/${DEFAULT_TELEGRAM}`;
 
     if (editingId) {
       const { data } = await supabase
@@ -116,9 +109,7 @@ export default function AdminPanel() {
         .eq("id", editingId)
         .select();
 
-      if (data?.[0]) {
-        setAds((prev) => prev.map((a) => (a.id === editingId ? data[0] : a)));
-      }
+      if (data?.[0]) setAds((prev) => prev.map((a) => (a.id === editingId ? data[0] : a)));
       setEditingId(null);
       showToast("E’lon yangilandi");
     } else {
@@ -145,7 +136,6 @@ export default function AdminPanel() {
     setTitle("");
     setDescription("");
     setPrice("");
-    setTelegram("+998944411407");
     setCategory("");
     setSubCategory("");
     setImage(null);
@@ -167,7 +157,6 @@ export default function AdminPanel() {
     setTitle(ad.title || "");
     setDescription(ad.description || "");
     setPrice(ad.price || "");
-    setTelegram(ad.telegram || "+998944411407");
     setCategory(ad.category || "");
     setSubCategory(ad.sub_category || "");
   };
@@ -232,19 +221,7 @@ export default function AdminPanel() {
                 <input type="text" placeholder="E’lon nomi" className="input w-full" value={title} onChange={(e) => setTitle(e.target.value)} />
                 <textarea placeholder="E'lon bo'yicha batafsil" className="textarea w-full" value={description} onChange={(e) => setDescription(e.target.value)} />
                 <input type="file" className="file-input w-full" onChange={(e) => setImage(e.target.files[0])} />
-                <div className="flex gap-2">
-                  <input
-                    type="tel"
-                    className="input flex-1 w-full"
-                    value={telegram}
-                    placeholder="Telegram raqam"
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (!isNaN(val)) setTelegram(val);
-                    }}
-                  />
-                  <input type="text" placeholder="Narx/100 000" className="input flex-1" value={price} onChange={(e) => setPrice(e.target.value)} />
-                </div>
+                <input type="text" placeholder="Narx/100 000" className="input w-full" value={price} onChange={(e) => setPrice(e.target.value)} />
                 <button type="submit" className="btn btn-primary w-full flex items-center justify-center gap-2">
                   {loading && <span className="loading loading-spinner"></span>}
                   {editingId ? "Yangilash" : "Qo'shish"}

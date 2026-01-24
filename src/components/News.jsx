@@ -93,7 +93,7 @@ export default function News() {
         <div className={`absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg transition-opacity duration-500 ease-in-out ${fade ? "opacity-100" : "opacity-0"}`} />
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 p-10 text-white">
+      <div className="absolute bottom-0 left-0 right-0 sm:mx-auto p-10 text-white">
         <p className="text-base md:text-lg font-medium max-w-xl leading-relaxed">{item.description}</p>
       </div>
 
