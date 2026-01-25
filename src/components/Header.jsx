@@ -16,9 +16,9 @@ export default function Header() {
   const lastScrollY = useRef(0);
 
   const socialLinks = [
-    { icon: <SiTelegram className="w-4 h-4" />, href: "#" },
-    { icon: <FaInstagram className="w-4 h-4" />, href: "#" },
-    { icon: <GrYoutube className="w-4 h-4" />, href: "#" },
+    { icon: <SiTelegram className="w-4 h-4" />, href: "https://www.t.me/rishton_1_texnikum" },
+    { icon: <FaInstagram className="w-4 h-4" />, href: "https://www.instagram.com/rishton_1_texnikum" },
+    { icon: <GrYoutube className="w-4 h-4" />, href: "https://www.youtube.com/@rishton_1_texnikum" },
   ];
 
   useEffect(() => {
@@ -66,7 +66,7 @@ export default function Header() {
                 <PhoneIcon className="w-4 h-4" /> (94) 441 14 07
               </div>
               <div className="hidden md:flex items-center gap-1">
-                <EnvelopeIcon className="w-4 h-4" /> info@politex.uz
+                <EnvelopeIcon className="w-4 h-4" /> mirzodavlatakbarov43@gmail.com
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -147,7 +147,6 @@ export default function Header() {
             mobileMenuOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-10 pointer-events-none"
           }`}
         >
-          
           <div className="flex items-center justify-between px-6 py-4 border-b border-base-300">
             <Link to="/" className="text-[25px] font-semibold text-base-content">
               TEXNIKUM
@@ -163,7 +162,7 @@ export default function Header() {
                 <PhoneIcon className="w-4 h-4" /> (94) 441 14 07
               </div>
               <div className="flex items-center gap-2">
-                <EnvelopeIcon className="w-4 h-4" /> info@politex.uz
+                <EnvelopeIcon className="w-4 h-4" /> mirzodavlatakbarov43@gmail.com
               </div>
               <div className="flex items-center gap-2">
                 <ClockIcon className="w-4 h-4" /> 09:00 - 18:00
